@@ -1,31 +1,19 @@
 # Estimating Soil Moisture Content Using Weather Data
 
-[![Check Report](https://github.com/cybertraining-dsc/fa20-523-305/workflows/Check%20Report/badge.svg)](https://github.com/cybertraining-dsc/fa20-523-305/actions)
-[![Status](https://github.com/cybertraining-dsc/fa20-523-305/workflows/Status/badge.svg)](https://github.com/cybertraining-dsc/fa20-523-305/actions)
-Status: final, Type: Project
-
-Cody Harris, harrcody@iu.edu, [fa20-523-305](https://github.com/cybertraining-dsc/fa20-523-305), [Edit](https://github.com/cybertraining-dsc/fa20-523-305/edit/main/project/project.md)
+Cody Harris, harrcody@iu.edu, [fa20-523-305](https://github.com/cybertraining-dsc/fa20-523-305)
 
 Code: [ml_pipeline.ipynb](https://github.com/cybertraining-dsc/fa20-523-305/blob/main/project/code/ml_pipeline.ipynb)
 Data: [data](https://github.com/cybertraining-dsc/fa20-523-305/tree/main/project/data)
-
-{{% pageinfo %}}
 
 ## Abstract
 
 As the world is gripped with finding solutions to problems such as food and water shortages, the study of agriculture could improve where we stand with both of these problems. By integrating weather and sensor data, a model could be created to estimate soil moisture based on weather data that is easily accessible. While some farmers could afford to have many moisture sensors and monitor them, many would not have the funds or resources to keep track of the soil moisture long term. A solution would be to allow farmers to contract out a limited study of their land using sensors and then this model would be able to predict soil moistures from weather data. This collection of data, and predictions could be used on their own or as a part of a larger agricultural solution.
 
-Contents
-
-{{< table_of_contents >}}
-
-{{% /pageinfo %}}
-
 **Keywords:** agriculture, soil moisture, IoT, machine learning, regression, sklearn
 
 ## 1. Introduction
 
-Maintaining correct soil moisture throughout the plant growing process can result in better yields, and less overall problems with the crop. Water deficiencies or surplus at various stages of growth have different effects, or even negligible effects [^1]. It is important to have an idea of how your land consumes and stores water, which could be very different based on the plants being used, and variation of elevation and geography.
+Maintaining correct soil moisture throughout the plant growing process can result in better yields, and less overall problems with the crop. Water deficiencies or surplus at various stages of growth have different effects, or even negligible effects [1]. It is important to have an idea of how your land consumes and stores water, which could be very different based on the plants being used, and variation of elevation and geography.
 
 For hundreds of years, farmers have done something similar to this model. The difference is the precision that we can gain by using real data. For the past few hundred years, farmers had to rely on mostly experience and touch to know the moisture of their soil. While many farmers were successful, in the sense that they produced crops, there were ways they could have better optimized their crops to produce better. The water available to the plants is not the only variable that effects yields, but this project seeks to create an accessible model to which farmers can have predicted values of soil moisture without needing to buy and deploy expensive sensors.
 
@@ -40,23 +28,23 @@ Understanding how weather impacts soil moisture is something that has been studi
 One such study, was motivated by trying to predict dust storms in China, in which soil moisture plays a large role in. This prediction used multiple-linear regression, and focused on predictions that dealt with the top 10 cm of soil. Two key takeaways can be derived from this work that are beneficial for carrying out this project.
 
 - "The influence of precipitation on surface soil moisture content does not last more than 16 days."
-- "The compound effect of the ratio of precipitation to evaporation, which is nonlinearly summed, can be used to calculate the surface soil moisture content in China" [^4]. 
+- "The compound effect of the ratio of precipitation to evaporation, which is nonlinearly summed, can be used to calculate the surface soil moisture content in China" [4]. 
 
 Moving forward, this project will assume that precipitation from the prior 16 days is relevant. In the case that for the specific data being fit, less days are relevant, then their coefficients in the model will likely become small enough to not affect the model. Secondly, soil moisture is influenced by a ratio or precipitation to evaporation. While this project might not seek to evaluate this relationship directly, it will seek to include data that would influence these ratios such as temperature, time of year, and wind speeds.
 
-Multiple publications have sought to come up with complete hydrological models to determine soil moisture from a variety of factors. These models are generally stochastic in nature and are reliable predictors when many parameters of the model are available. One such cited model requires a minimum or 19 variables or measured coefficients [^5]. The authors of another study note the aforementioned study, as well as other similar studies, and make a point that these methods might not be the best models when it comes to practical applications. Their solution was to create a generalize model that relied mostly on soil moisture as "a function of the time-weighted average of previous cumulative rainfall over a period" [^6]. Such a model is closer in terms to simplicity and generalization to what is hoped to be accomplished in this project. 
+Multiple publications have sought to come up with complete hydrological models to determine soil moisture from a variety of factors. These models are generally stochastic in nature and are reliable predictors when many parameters of the model are available. One such cited model requires a minimum or 19 variables or measured coefficients [5]. The authors of another study note the aforementioned study, as well as other similar studies, and make a point that these methods might not be the best models when it comes to practical applications. Their solution was to create a generalize model that relied mostly on soil moisture as "a function of the time-weighted average of previous cumulative rainfall over a period" [6]. Such a model is closer in terms to simplicity and generalization to what is hoped to be accomplished in this project. 
 
-The relationship between soil moisture and weather patterns is one with a rich history of study. Both of these measures affect each other in various ways. Most studies that sought to quantify this relationship were conducted at a time in which large scale sensor arrays could not have been implemented in the field. With the prevalence of IoT and improved sensing technologies, it seems as though there might not be a need to use predictive models for soil moisture, but instead just use sensor data. While this could be true in some applications, a wide array of challenges occur when trying to maintain these sensor arrays. Problems such as charging or replacing batteries, sensor and relay equipment not working if completely buried, but are in the way of farming if mounted above ground, sensors failing, etc. These were real challenges faced by the farm in which the soil moisture data was collected [^7]. The objective of this project is to create predictive models based on limited training data so that farmers would not need to deal with sensor arrays indefinitely.
+The relationship between soil moisture and weather patterns is one with a rich history of study. Both of these measures affect each other in various ways. Most studies that sought to quantify this relationship were conducted at a time in which large scale sensor arrays could not have been implemented in the field. With the prevalence of IoT and improved sensing technologies, it seems as though there might not be a need to use predictive models for soil moisture, but instead just use sensor data. While this could be true in some applications, a wide array of challenges occur when trying to maintain these sensor arrays. Problems such as charging or replacing batteries, sensor and relay equipment not working if completely buried, but are in the way of farming if mounted above ground, sensors failing, etc. These were real challenges faced by the farm in which the soil moisture data was collected [7]. The objective of this project is to create predictive models based on limited training data so that farmers would not need to deal with sensor arrays indefinitely.
 
 ## 3. Datasets
 
-The first data set comes from NOAA and contains daily summary data in regards to various measurements such as temperature, precipitation, wind speed, etc. For this project, only data that came from the closest station to the field will be used [^2]. In this case, that is the Pullman station at the Pullman-Moscow airport. Below is an image showing the weather data collection location, and the red pin is at the longitude and latitude of one of the sensors in the field. This data is in csv format (see Figure 1).
+The first data set comes from NOAA and contains daily summary data in regards to various measurements such as temperature, precipitation, wind speed, etc. For this project, only data that came from the closest station to the field will be used [2]. In this case, that is the Pullman station at the Pullman-Moscow airport. Below is an image showing the weather data collection location, and the red pin is at the longitude and latitude of one of the sensors in the field. This data is in csv format (see Figure 1).
 
 ![Figure 1](https://raw.githubusercontent.com/cybertraining-dsc/fa20-523-305/main/project/images/distance_map.png)
 
 **Figure 1:** Estimated distance from weather reports to the crop fields. Distance is calculated using Google Maps
 
-The second dataset comes from the USDA. This dataset consists of "hourly and daily measurements of volumetric water content, soil temperature, and bulk electrical conductivity, collected at 42 monitoring locations and 5 depths (30, 60, 90, 120, and 150 cm)" at a farm in Washington state [^3]. Mainly, the daily temperature and water content are the measurements of interest. There are multiple files that have data that corresponds to what plants are being grown in specific places, and the makeup of the soil at each sensor cite. This auxilary information could be used in later models once the base model has been completed. This data is in tab delimited files.
+The second dataset comes from the USDA. This dataset consists of "hourly and daily measurements of volumetric water content, soil temperature, and bulk electrical conductivity, collected at 42 monitoring locations and 5 depths (30, 60, 90, 120, and 150 cm)" at a farm in Washington state [3]. Mainly, the daily temperature and water content are the measurements of interest. There are multiple files that have data that corresponds to what plants are being grown in specific places, and the makeup of the soil at each sensor cite. This auxilary information could be used in later models once the base model has been completed. This data is in tab delimited files.
 
 Within the data, there are GIS file types that can be imported into Google Maps desktop to visualize the locations of the sensors and other geographical information. Below is an example of the sensor locations plotted on the satellite image (see Figure 2).
 
@@ -223,16 +211,16 @@ The author would like to thank Dr. Gregor Von Laszewski, Dr. Geoffrey Fox, and t
 
 ## 15. References
 
-[^1]: O. Denmead and R. Shaw, "The Effects of Soil Moisture Stress at Different Stages of Growth on the Development and Yield of Corn 1", Agronomy Journal, vol. 52, no. 5, pp. 272-274, 1960. Available: 10.2134/agronj1960.00021962005200050010x.
+[1]: O. Denmead and R. Shaw, "The Effects of Soil Moisture Stress at Different Stages of Growth on the Development and Yield of Corn 1", Agronomy Journal, vol. 52, no. 5, pp. 272-274, 1960. Available: 10.2134/agronj1960.00021962005200050010x.
 
-[^2]: N. (NCEI), "Climate Data Online (CDO) - The National Climatic Data Center's (NCDC) Climate Data Online (CDO) provides free access to NCDC's archive of historical weather and climate data in addition to station history information. | National Climatic Data Center (NCDC)", Ncdc.noaa.gov, 2020. [Online]. Available: <https://www.ncdc.noaa.gov/cdo-web/>. [Accessed: 19- Oct- 2020].
+[2]: N. (NCEI), "Climate Data Online (CDO) - The National Climatic Data Center's (NCDC) Climate Data Online (CDO) provides free access to NCDC's archive of historical weather and climate data in addition to station history information. | National Climatic Data Center (NCDC)", Ncdc.noaa.gov, 2020. [Online]. Available: <https://www.ncdc.noaa.gov/cdo-web/>. [Accessed: 19- Oct- 2020].
 
-[^3]: "Data from: A field-scale sensor network data set for monitoring and modeling the spatial and temporal variation of soil moisture in a dryland agricultural field", USDA: Ag Data Commons, 2020. [Online]. Available: <https://data.nal.usda.gov/dataset/data-field-scale-sensor-network-data-set-monitoring-and-modeling-spatial-and-temporal-variation-soil-moisture-dryland-agricultural-field>. [Accessed: 19- Oct- 2020].
+[3]: "Data from: A field-scale sensor network data set for monitoring and modeling the spatial and temporal variation of soil moisture in a dryland agricultural field", USDA: Ag Data Commons, 2020. [Online]. Available: <https://data.nal.usda.gov/dataset/data-field-scale-sensor-network-data-set-monitoring-and-modeling-spatial-and-temporal-variation-soil-moisture-dryland-agricultural-field>. [Accessed: 19- Oct- 2020].
 
-[^4]: K. Shang, S. Wang, Y. Ma, Z. Zhou, J. Wang, H. Liu and Y. Wang, "A scheme for calculating soil moisture content by using routine weather data", Atmospheric Chemistry and Physics, vol. 7, no. 19, pp. 5197-5206, 2007 [Online]. Available: <https://hal.archives-ouvertes.fr/hal-00302825/document>
+[4]: K. Shang, S. Wang, Y. Ma, Z. Zhou, J. Wang, H. Liu and Y. Wang, "A scheme for calculating soil moisture content by using routine weather data", Atmospheric Chemistry and Physics, vol. 7, no. 19, pp. 5197-5206, 2007 [Online]. Available: <https://hal.archives-ouvertes.fr/hal-00302825/document>
 
-[^5]: W. Capehart and T. Carlson, "Estimating near-surface soil moisture availability using a meteorologically driven soil-water profile model", Journal of Hydrology, vol. 160, no. 1-4, pp. 1-20, 1994 [Online]. Available: <https://tinyurl.com/yxjyuy5x>
+[5]: W. Capehart and T. Carlson, "Estimating near-surface soil moisture availability using a meteorologically driven soil-water profile model", Journal of Hydrology, vol. 160, no. 1-4, pp. 1-20, 1994 [Online]. Available: <https://tinyurl.com/yxjyuy5x>
 
-[^6]: F. Pan, C. Peters-Lidard and M. Sale, "An analytical method for predicting surface soil moisture from rainfall observations", Water Resources Research, vol. 39, no. 11, 2003 [Online]. Available: <https://agupubs.onlinelibrary.wiley.com/doi/pdf/10.1029/2003WR002142>. [Accessed: 08- Nov- 2020]
+[6]: F. Pan, C. Peters-Lidard and M. Sale, "An analytical method for predicting surface soil moisture from rainfall observations", Water Resources Research, vol. 39, no. 11, 2003 [Online]. Available: <https://agupubs.onlinelibrary.wiley.com/doi/pdf/10.1029/2003WR002142>. [Accessed: 08- Nov- 2020]
 
-[^7]: C. Gasch, D. Brown, C. Campbell, D. Cobos, E. Brooks, M. Chahal and M. Poggio, "A Field-Scale Sensor Network Data Set for Monitoring and Modeling the Spatial and Temporal Variation of Soil Water Content in a Dryland Agricultural Field", Water Resources Research, vol. 53, no. 12, pp. 10878-10887, 2017 [Online]. Available: <https://agupubs.onlinelibrary.wiley.com/doi/full/10.1002/2017WR021307>. [Accessed: 08- Nov- 2020]
+[7]: C. Gasch, D. Brown, C. Campbell, D. Cobos, E. Brooks, M. Chahal and M. Poggio, "A Field-Scale Sensor Network Data Set for Monitoring and Modeling the Spatial and Temporal Variation of Soil Water Content in a Dryland Agricultural Field", Water Resources Research, vol. 53, no. 12, pp. 10878-10887, 2017 [Online]. Available: <https://agupubs.onlinelibrary.wiley.com/doi/full/10.1002/2017WR021307>. [Accessed: 08- Nov- 2020]
